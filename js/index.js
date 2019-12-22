@@ -497,6 +497,7 @@ export function getBlockContentMarkdown(
  * Function will return style string for a block.
  */
 export function getBlockStyle(data) {
+  return false;
   let styles = '';
   forEach(data, (key, value) => {
     styles += `${key}:${value};`;
