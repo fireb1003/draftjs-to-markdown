@@ -467,12 +467,15 @@ export function getBlockContentMarkdown(
   hashConfig,
   customEntityTransform
 ) {
-	console.log("block.data", block.data )
-  if (isAtomicBlock(block)) {
-  	console.log("block.data.short", block.data.short )
-  	let md = '-- '
+	
+  // just check if type is atomic
+  //if (isAtomicBlock(block)) {
+  //console.log("block is", block )
+  if(block.type === 'atomic') {
   	if(block.data.short)
   		md = '{{< ';
+  	if(block.data.textAs)
+  		md += `${block.data.textAs}="${block.text}"`;
   	md += getEntityMarkdown(
       entityMap,
       block.entityRanges[0].key,
