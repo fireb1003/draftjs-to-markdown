@@ -1,20 +1,20 @@
-import { isEmptyString, forEach, isList } from './common';
+import { isEmptyString, forEach, isList } from "./common";
 
 /**
  * Mapping block-type to corresponding markdown symbol.
  */
 const defaultBlockTypesMapping = {
-  unstyled: '',
-  'header-one': '# ',
-  'header-two': '## ',
-  'header-three': '### ',
-  'header-four': '#### ',
-  'header-five': '##### ',
-  'header-six': '###### ',
-  'unordered-list-item': '- ',
-  'ordered-list-item': '1. ',
-  blockquote: '> ',
-  code: '    ',
+  unstyled: "",
+  "header-one": "# ",
+  "header-two": "## ",
+  "header-three": "### ",
+  "header-four": "#### ",
+  "header-five": "##### ",
+  "header-six": "###### ",
+  "unordered-list-item": "- ",
+  "ordered-list-item": "1. ",
+  blockquote: "> ",
+  code: "    "
 };
 
 /**
@@ -32,22 +32,22 @@ function isAtomicBlock(block) {
  */
 function getEntityMarkdown(entityMap, entityKey, text, customEntityTransform) {
   const entity = entityMap[entityKey];
-  if (typeof customEntityTransform === 'function') {
+  if (typeof customEntityTransform === "function") {
     const html = customEntityTransform(entity, text);
     if (html) {
       return html;
     }
   }
-  if (entity.type === 'MENTION') {
+  if (entity.type === "MENTION") {
     return `[${text}](${entity.data.url})`;
   }
-  if (entity.type === 'LINK') {
+  if (entity.type === "LINK") {
     return `[${text}](${entity.data.url})`;
   }
-  if (entity.type === 'IMAGE') {
-    return `![${entity.data.alt || ''}](${entity.data.src})`;
+  if (entity.type === "IMAGE") {
+    return `![${entity.data.alt || ""}](${entity.data.src})`;
   }
-  if (entity.type === 'EMBEDDED_LINK') {
+  if (entity.type === "EMBEDDED_LINK") {
     return `<iframe width="${entity.data.width}" height="${entity.data.height}" src="${entity.data.src}" frameBorder="0" allowFullScreen />`;
   }
   return text;
@@ -63,9 +63,9 @@ function getHashtagRanges(blockText, hashConfig) {
     let counter = 0;
     let startIndex = 0;
     let text = blockText;
-    const trigger = hashConfig.trigger || '#';
-    const separator = hashConfig.separator || ' ';
-    for (; text.length > 0 && startIndex >= 0;) {
+    const trigger = hashConfig.trigger || "#";
+    const separator = hashConfig.separator || " ";
+    for (; text.length > 0 && startIndex >= 0; ) {
       if (text[0] === trigger) {
         startIndex = 0;
         counter = 0;
@@ -78,13 +78,14 @@ function getHashtagRanges(blockText, hashConfig) {
         }
       }
       if (startIndex >= 0) {
-        const endIndex =          text.indexOf(separator) >= 0 ? text.indexOf(separator) : text.length;
+        const endIndex =
+          text.indexOf(separator) >= 0 ? text.indexOf(separator) : text.length;
         const hashtagText = text.substr(0, endIndex);
         if (hashtagText && hashtagText.length > 0) {
           sections.push({
             offset: counter,
             length: hashtagText.length + trigger.length,
-            type: 'HASHTAG',
+            type: "HASHTAG"
           });
         }
         counter += trigger.length;
@@ -101,38 +102,38 @@ function getHashtagRanges(blockText, hashConfig) {
 function getSections(block, hashConfig) {
   const sections = [];
   let lastOffset = 0;
-  let sectionRanges = block.entityRanges.map((range) => {
+  let sectionRanges = block.entityRanges.map(range => {
     const { offset, length, key } = range;
     return {
       offset,
       length,
       key,
-      type: 'ENTITY',
+      type: "ENTITY"
     };
   });
   sectionRanges = sectionRanges.concat(
-    getHashtagRanges(block.text, hashConfig),
+    getHashtagRanges(block.text, hashConfig)
   );
   sectionRanges = sectionRanges.sort((s1, s2) => s1.offset - s2.offset);
-  sectionRanges.forEach((r) => {
+  sectionRanges.forEach(r => {
     if (r.offset > lastOffset) {
       sections.push({
         start: lastOffset,
-        end: r.offset - 1,
+        end: r.offset - 1
       });
     }
     sections.push({
       start: r.offset,
       end: r.offset + r.length,
       entityKey: r.key,
-      type: r.type,
+      type: r.type
     });
     lastOffset = r.offset + r.length;
   });
   if (lastOffset < block.text.length) {
     sections.push({
       start: lastOffset,
-      end: block.text.length,
+      end: block.text.length
     });
   }
   return sections;
@@ -155,20 +156,20 @@ function getStyleArrayForBlock(block) {
     UNDERLINE: new Array(text.length),
     ITALIC: new Array(text.length),
     BOLD: new Array(text.length),
-    length: text.length,
+    length: text.length
   };
   if (inlineStyleRanges && inlineStyleRanges.length > 0) {
-    inlineStyleRanges.forEach((range) => {
+    inlineStyleRanges.forEach(range => {
       const { offset } = range;
       const length = offset + range.length;
       for (let i = offset; i < length; i += 1) {
-        if (range.style.indexOf('color-') === 0) {
+        if (range.style.indexOf("color-") === 0) {
           inlineStyles.COLOR[i] = range.style.substring(6);
-        } else if (range.style.indexOf('bgcolor-') === 0) {
+        } else if (range.style.indexOf("bgcolor-") === 0) {
           inlineStyles.BGCOLOR[i] = range.style.substring(8);
-        } else if (range.style.indexOf('fontsize-') === 0) {
+        } else if (range.style.indexOf("fontsize-") === 0) {
           inlineStyles.FONTSIZE[i] = range.style.substring(9);
-        } else if (range.style.indexOf('fontfamily-') === 0) {
+        } else if (range.style.indexOf("fontfamily-") === 0) {
           inlineStyles.FONTFAMILY[i] = range.style.substring(11);
         } else if (inlineStyles[range.style]) {
           inlineStyles[range.style][i] = true;
@@ -186,9 +187,10 @@ function getStyleArrayForBlock(block) {
 export function sameStyleAsPrevious(inlineStyles, styles, index) {
   let sameStyled = true;
   if (index > 0 && index < inlineStyles.length) {
-    styles.forEach((style) => {
-      sameStyled =        sameStyled
-        && inlineStyles[style][index] === inlineStyles[style][index - 1];
+    styles.forEach(style => {
+      sameStyled =
+        sameStyled &&
+        inlineStyles[style][index] === inlineStyles[style][index - 1];
     });
   } else {
     sameStyled = false;
@@ -258,7 +260,7 @@ function getStyleSections(block, styles, start, end) {
           styles: getStylesAtOffset(inlineStyles, i),
           text: [text[i]],
           start: i,
-          end: i + 1,
+          end: i + 1
         };
         styleSections.push(section);
       }
@@ -272,48 +274,48 @@ function getStyleSections(block, styles, start, end) {
  */
 function getSectionText(text) {
   if (text && text.length > 0) {
-    const chars = text.map((ch) => {
+    const chars = text.map(ch => {
       switch (ch) {
-        case '\n':
-          return '\\s\\s\n';
-        case '&':
-          return '&amp;';
-        case '<':
-          return '&lt;';
-        case '>':
-          return '&gt;';
+        case "\n":
+          return "\\s\\s\n";
+        case "&":
+          return "&amp;";
+        case "<":
+          return "&lt;";
+        case ">":
+          return "&gt;";
         default:
           return ch;
       }
     });
-    return chars.join('');
+    return chars.join("");
   }
-  return '';
+  return "";
 }
 
 /**
  * Function returns markdown for inline style symbols.
  */
 export function addInlineStyleMarkdown(style, content) {
-  if (style === 'BOLD') {
+  if (style === "BOLD") {
     return `**${content}**`;
   }
-  if (style === 'ITALIC') {
+  if (style === "ITALIC") {
     return `*${content}*`;
   }
-  if (style === 'UNDERLINE') {
+  if (style === "UNDERLINE") {
     return `__${content}__`;
   }
-  if (style === 'STRIKETHROUGH') {
+  if (style === "STRIKETHROUGH") {
     return `~~${content}~~`;
   }
-  if (style === 'CODE') {
+  if (style === "CODE") {
     return `\`${content}\``;
   }
-  if (style === 'SUPERSCRIPT') {
+  if (style === "SUPERSCRIPT") {
     return `<sup>${content}</sup>`;
   }
-  if (style === 'SUBSCRIPT') {
+  if (style === "SUBSCRIPT") {
     return `<sub>${content}</sub>`;
   }
   return content;
@@ -338,8 +340,8 @@ export function addStylePropertyMarkdown(styleSection) {
   const { styles, text } = styleSection;
   const content = getSectionText(text);
   if (
-    styles
-    && (styles.COLOR || styles.BGCOLOR || styles.FONTSIZE || styles.FONTFAMILY)
+    styles &&
+    (styles.COLOR || styles.BGCOLOR || styles.FONTSIZE || styles.FONTFAMILY)
   ) {
     let styleString = 'style="';
     if (styles.COLOR) {
@@ -370,48 +372,48 @@ function getSectionMarkdown(block, entityMap, section, customEntityTransform) {
   const styleSections = getStyleSections(
     block,
     [
-      'BOLD',
-      'ITALIC',
-      'UNDERLINE',
-      'STRIKETHROUGH',
-      'CODE',
-      'SUPERSCRIPT',
-      'SUBSCRIPT',
+      "BOLD",
+      "ITALIC",
+      "UNDERLINE",
+      "STRIKETHROUGH",
+      "CODE",
+      "SUPERSCRIPT",
+      "SUBSCRIPT"
     ],
     section.start,
-    section.end,
+    section.end
   );
-  let styleSectionText = '';
-  styleSections.forEach((styleSection) => {
+  let styleSectionText = "";
+  styleSections.forEach(styleSection => {
     const stylePropertySections = getStyleSections(
       block,
-      ['COLOR', 'BGCOLOR', 'FONTSIZE', 'FONTFAMILY'],
+      ["COLOR", "BGCOLOR", "FONTSIZE", "FONTFAMILY"],
       styleSection.start,
-      styleSection.end,
+      styleSection.end
     );
-    let stylePropertySectionText = '';
-    stylePropertySections.forEach((stylePropertySection) => {
+    let stylePropertySectionText = "";
+    stylePropertySections.forEach(stylePropertySection => {
       stylePropertySectionText += addStylePropertyMarkdown(
-        stylePropertySection,
+        stylePropertySection
       );
     });
     styleSectionText += getStyleTagSectionMarkdown(
       styleSection.styles,
-      stylePropertySectionText,
+      stylePropertySectionText
     );
   });
   entitySectionMarkdown.push(styleSectionText);
-  let sectionText = entitySectionMarkdown.join('');
-  if (section.type === 'ENTITY') {
+  let sectionText = entitySectionMarkdown.join("");
+  if (section.type === "ENTITY") {
     if (section.entityKey !== undefined && section.entityKey !== null) {
       sectionText = getEntityMarkdown(
         entityMap,
         section.entityKey,
         sectionText,
-        customEntityTransform,
+        customEntityTransform
       );
     }
-  } else if (section.type === 'HASHTAG') {
+  } else if (section.type === "HASHTAG") {
     sectionText = `[${sectionText}](${sectionText})`;
   }
   return sectionText;
@@ -424,8 +426,8 @@ export function trimLeadingZeros(sectionText) {
   if (sectionText) {
     let replacedText = sectionText;
     for (let i = 0; i < replacedText.length; i += 1) {
-      if (sectionText[i] === ' ') {
-        replacedText = replacedText.replace(' ', '&nbsp;');
+      if (sectionText[i] === " ") {
+        replacedText = replacedText.replace(" ", "&nbsp;");
       } else {
         break;
       }
@@ -442,10 +444,10 @@ export function trimTrailingZeros(sectionText) {
   if (sectionText) {
     let replacedText = sectionText;
     for (let i = replacedText.length - 1; i >= 0; i -= 1) {
-      if (replacedText[i] === ' ') {
+      if (replacedText[i] === " ") {
         replacedText = `${replacedText.substring(
           0,
-          i,
+          i
         )}&nbsp;${replacedText.substring(i + 1)}`;
       } else {
         break;
@@ -463,14 +465,14 @@ export function getBlockContentMarkdown(
   block,
   entityMap,
   hashConfig,
-  customEntityTransform,
+  customEntityTransform
 ) {
   if (isAtomicBlock(block)) {
     return getEntityMarkdown(
       entityMap,
       block.entityRanges[0].key,
       undefined,
-      customEntityTransform,
+      customEntityTransform
     );
   }
   const blockMarkdown = [];
@@ -480,7 +482,7 @@ export function getBlockContentMarkdown(
       block,
       entityMap,
       section,
-      customEntityTransform,
+      customEntityTransform
     );
     if (index === 0) {
       sectionText = trimLeadingZeros(sectionText);
@@ -490,7 +492,7 @@ export function getBlockContentMarkdown(
     }
     blockMarkdown.push(sectionText);
   });
-  return blockMarkdown.join('');
+  return blockMarkdown.join("");
 }
 
 /**
@@ -498,11 +500,13 @@ export function getBlockContentMarkdown(
  */
 export function getBlockStyle(data) {
   return false;
+  /*
   let styles = '';
   forEach(data, (key, value) => {
     styles += `${key}:${value};`;
   });
   return styles;
+  */
 }
 
 /**
@@ -525,7 +529,7 @@ function getBlockMarkdown(
   entityMap,
   hashConfig,
   customEntityTransform,
-  config,
+  config
 ) {
   const blockMarkdown = [];
   blockMarkdown.push(blockTypesMapping[block.type]);
@@ -533,23 +537,23 @@ function getBlockMarkdown(
     block,
     entityMap,
     hashConfig,
-    customEntityTransform,
+    customEntityTransform
   );
   if (block.data) {
     blockContentMarkdown = getBlockStyleProperty(
       block.data,
-      blockContentMarkdown,
+      blockContentMarkdown
     );
   }
   blockMarkdown.push(blockContentMarkdown);
-  blockMarkdown.push(config && config.emptyLineBeforeBlock ? '\n\n' : '\n');
-  return blockMarkdown.join('');
+  blockMarkdown.push(config && config.emptyLineBeforeBlock ? "\n\n" : "\n");
+  return blockMarkdown.join("");
 }
 
 function getDepthPadding(depth) {
-  let padding = '';
+  let padding = "";
   for (let i = 0; i < depth * 4; i += 1) {
-    padding += ' ';
+    padding += " ";
   }
   return padding;
 }
@@ -561,24 +565,24 @@ export default function draftToMarkdown(
   editorContent,
   hashConfig,
   customEntityTransform,
-  config,
+  config
 ) {
   const markdown = [];
   if (editorContent) {
     const blockTypesMapping = {
       ...defaultBlockTypesMapping,
-      ...(config && config.blockTypesMapping && config.blockTypesMapping),
+      ...(config && config.blockTypesMapping && config.blockTypesMapping)
     };
     const { blocks, entityMap } = editorContent;
     if (blocks && blocks.length > 0) {
-      blocks.forEach((block) => {
+      blocks.forEach(block => {
         let content = getBlockMarkdown(
           block,
           blockTypesMapping,
           entityMap,
           hashConfig,
           customEntityTransform,
-          config,
+          config
         );
         if (isList(block.type)) {
           content = getDepthPadding(block.depth) + content;
@@ -587,5 +591,5 @@ export default function draftToMarkdown(
       });
     }
   }
-  return markdown.join('');
+  return markdown.join("");
 }
