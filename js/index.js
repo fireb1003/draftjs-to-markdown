@@ -467,8 +467,10 @@ export function getBlockContentMarkdown(
   hashConfig,
   customEntityTransform
 ) {
+	console.log("block.data", block.data )
   if (isAtomicBlock(block)) {
-  	let md = ''
+  	console.log("block.data.short", block.data.short )
+  	let md = '-- '
   	if(block.data.short)
   		md = '{{< ';
   	md += getEntityMarkdown(
