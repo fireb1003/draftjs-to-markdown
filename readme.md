@@ -1,12 +1,7 @@
 # DraftJS TO Markdown
 
-A library for converting DraftJS editor content to markdown.
-
-This is draft to markdown library I wrote for one of my projects. I am open-sourcing it so that others can also be benefitted from my work.
-
-## Installation
-
-`npm install draftjs-to-markdown`
+## Adding support for hugo shortcodes
+`npm install https://github.com/fireb1003/draftjs-to-markdown/tarball/master`
 
 ## Usage
 
