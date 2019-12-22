@@ -468,12 +468,18 @@ export function getBlockContentMarkdown(
   customEntityTransform
 ) {
   if (isAtomicBlock(block)) {
-    return getEntityMarkdown(
+  	let md = ''
+  	if(block.data.short)
+  		md = '{{< ';
+  	md += getEntityMarkdown(
       entityMap,
       block.entityRanges[0].key,
       undefined,
       customEntityTransform
     );
+	if(block.data.short)
+		md += ' >}}';
+    return md;
   }
   const blockMarkdown = [];
   const entitySections = getSections(block, hashConfig);
@@ -499,14 +505,12 @@ export function getBlockContentMarkdown(
  * Function will return style string for a block.
  */
 export function getBlockStyle(data) {
-  return false;
-  /*
   let styles = '';
-  forEach(data, (key, value) => {
+  if(data.style)
+  forEach(data.style, (key, value) => {
     styles += `${key}:${value};`;
   });
   return styles;
-  */
 }
 
 /**
