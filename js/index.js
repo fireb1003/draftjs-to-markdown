@@ -473,7 +473,7 @@ export function getBlockContentMarkdown(
   if(block.type === 'atomic') {
   	let md = ''
   	if(block.data.short)
-  		md = '{{< ';
+  		md += `{{< ${block.data.short} `;
   	if(block.data.textAs)
   		md += `${block.data.textAs}="${block.text}"`;
   	md += getEntityMarkdown(

@@ -3,6 +3,9 @@
 ## Adding support for hugo shortcodes
 `npm install https://github.com/fireb1003/draftjs-to-markdown/tarball/master`
 
+## Fast push
+`git add . ; git commit -m "new " ; git push origin master`
+
 ## Usage
 
 ```js
