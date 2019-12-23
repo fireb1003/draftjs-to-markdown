@@ -475,7 +475,7 @@ export function getBlockContentMarkdown(
   	if(block.data.short)
   		md += `{{< ${block.data.short} `;
   	if(block.data.textAs)
-  		md += `${block.data.textAs}="${block.text}"`;
+  		md += `${block.data.textAs}="${block.data.text}"`;
   	md += getEntityMarkdown(
       entityMap,
       block.entityRanges[0].key,
